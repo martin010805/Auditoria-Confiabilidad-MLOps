@@ -20,3 +20,4 @@
 2. Confirma, si puedes, el error concreto de Docker y si el problema se resolvió incluyendo/generando `mlflow.db` y `mlruns/`. Ajusta la cronología del postmortem con lo que recuerdes.
 3. Si conservas el directorio original completo, con `mlflow.db`, `mlruns`, datos y `.git`, reemplaza este paquete parcial por una auditoría de ese directorio. No subas datos sensibles ni credenciales.
 4. Revisa el texto y adapta la redacción a tu voz antes de entregar.
+Snapshot de auditoría creado localmente. No representa el historial original del estudiante.
