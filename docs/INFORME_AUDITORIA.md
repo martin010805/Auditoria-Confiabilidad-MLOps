@@ -1,31 +1,26 @@
 # Informe de Auditoría de Confiabilidad — MLOps Variante B
 
-**Fecha:** 23 de octubre de 2026. Informe completo en `INFORME_AUDITORIA.pdf` (25 páginas). Las nueve fichas también se encuentran en `FICHAS.md`.
+**Fecha:** 23 de octubre de 2026. El informe principal está en `Martin_AuditoriaConfiabilidad.pdf`; las nueve fichas están en `fichas.md` y `docs/FICHAS.md`.
 
 ## Resumen ejecutivo
-La auditoría se basa en el ZIP del proyecto MLOps de la semana anterior. El paquete incluye FastAPI, entrenamiento con MLflow, registro CSV y evidencia de una prueba de API. El hallazgo concreto es que `Dockerfile` copia `mlflow.db` y `mlruns/` (líneas 8–10), pero ambos están excluidos por `.gitignore` y no están dentro del ZIP. Esto puede explicar los fallos de construcción de Docker que el estudiante recuerda, aunque no demuestra que fuera la única causa histórica.
+La auditoría se basa en el ZIP del proyecto MLOps de la semana anterior. El proyecto incluye FastAPI, registro CSV, entrenamiento con MLflow y evidencia de una prueba de API. El hallazgo verificable es que `Dockerfile` copia `mlflow.db` y `mlruns/` (líneas 8–10), pero no estaban en el ZIP y están excluidos por `.gitignore`. Esto puede explicar el problema de Docker que recuerda el estudiante, aunque no prueba que fuera la causa única.
 
 ## SLI/SLO propuestos
-- **Disponibilidad:** 99,5% de solicitudes válidas sin respuesta 5xx durante 30 días; presupuesto propuesto: 216 minutos.
-- **Latencia:** p95 ≤ 500 ms para `/predict`, objetivo 99% en una ventana móvil de 7 días; en 10.000 solicitudes el presupuesto sería 100 solicitudes fuera de objetivo.
-- **Calidad:** AUC-PR ≥ 0,30 en al menos 95% de las ventanas semanales etiquetadas, con muestra mínima. La evaluación guardada en `training/real_results.json` tiene AUC-PR 0,3005, pero es un holdout temporal, no medición de producción L1–L4.
+- **Disponibilidad:** 99,5% de solicitudes válidas sin respuesta 5xx durante 30 días; presupuesto de 216 minutos.
+- **Latencia:** p95 ≤ 500 ms para `/predict`; objetivo de 99% de solicitudes dentro del umbral en una ventana móvil de 7 días.
+- **Calidad:** AUC-PR ≥ 0,30 en ventanas etiquetadas. El holdout guardado en `training/real_results.json` da AUC-PR 0,3005, no una medición de producción.
 
-No es posible calcular los SLI reales de L1–L4 con el ZIP recibido: no hay lotes L0–L4 ni etiquetas reales por predicción; la latencia tampoco se registra. `monitoring/prediction_log.csv` contiene ocho eventos.
+## Lotes L1–L4
+El ZIP original no contenía los lotes históricos ni etiquetas de producción. Para completar el ejercicio de cálculo, se creó un dataset sintético de 2.000 filas (500 por lote) con semilla fija. `evidencias/auditoria/lotes_L1_L4_simulados.csv` contiene los registros y `resumen_L1_L4_simulado.csv` sus métricas. Todos los registros están marcados `SIMULATED_NOT_PRODUCTION`; no deben presentarse como resultados históricos. En el escenario sintético L1 cumple los tres objetivos; L2 falla AUC-PR; L3 falla latencia y AUC-PR; L4 falla disponibilidad, latencia y AUC-PR.
 
-## Alertas
-No se encontró detector PSI conectado en el paquete. Se añadió `monitoring/sre_alert_policy.py`, que agrega PSI por lote y clasifica `record`, `ticket` o `alert`. Dos o más variables severas (PSI ≥ 0,25) escalan a alerta; señales moderadas generan ticket. Se validan valores PSI negativos o no finitos. El cambio se encuentra en el commit local `e2ccd22`; se ejecutaron siete pruebas unitarias con éxito. Este commit se creó tras inicializar un historial local desde el ZIP, no es el historial remoto original.
+## Alertas y código
+No se encontró detector PSI conectado en el paquete. Se añadió `monitoring/sre_alert_policy.py`, que clasifica señales por lote como `record`, `ticket` o `alert`. Las siete pruebas unitarias pasan (`python -m pytest -q tests/test_sre_alert_policy.py` → 7 passed). El cambio es real, pero la política todavía debe conectarse a un detector PSI operativo.
 
-## Postmortem
-El estudiante recuerda fallos de Docker y archivos/imagen que no parecían actualizarse. La hipótesis técnica más concreta respaldada por el ZIP es que el Dockerfile depende de `mlflow.db` y `mlruns/`, artefactos no incluidos en el paquete. La hora y duración exactas no están registradas; no se inventan. Para confirmar la causa histórica harían falta logs originales de build/arranque.
+## Postmortem de Docker
+El recuerdo sitúa el trabajo del viernes 16 de octubre aproximadamente entre 16:00 y 21:00, con el episodio más claro alrededor de 19:30–20:30. La cronología está etiquetada como reconstrucción aproximada, no como log contemporáneo. El `Dockerfile` copia artefactos que no estaban en el ZIP, lo que es una causa probable. La hora exacta, duración y resolución histórica no se pueden confirmar sin logs.
 
-## Toil, cascada y estrés
-Se inventariaron comandos manuales del README y se priorizó automatizar build, pruebas y chequeo de salud. Los tiempos de toil son estimaciones de planificación, no registros históricos; por eso no se afirma un porcentaje real de seis meses. No se encontró watcher de rollback ni detector PSI, así que el escenario adverso se documenta como prueba de diseño futura, no como fallo ejecutado de un componente inexistente. `tests/stress_test_plan.py` prepara una prueba HTTP de 200 solicitudes y 25 trabajadores; requiere una API que arranque con un modelo accesible y aún no tiene resultados de carga.
+## Prueba de carga
+Se ejecutó `tests/stress_test_stub.py` sobre la ruta FastAPI con un modelo determinista de prueba: 200 respuestas HTTP 200, 0 errores, 0,539 segundos, 370,81 solicitudes/s y p95 99,15 ms. Es una prueba real de la ruta en `TestClient`, pero usa un modelo simulado, sin red ni contenedor; no equivale a una prueba de rendimiento con el modelo MLflow real. El test de extremo a extremo sigue disponible en `tests/stress_test_plan.py` para cuando se recuperen los artefactos.
 
-## Limitaciones y próximos pasos
-1. Recuperar, si existe, el directorio completo con `.git`, `mlflow.db`, `mlruns/`, dataset y lotes L0–L4.
-2. Registrar latencia, estado HTTP, versión del modelo, batch ID y etiqueta real.
-3. Conectar la política de alertas a un detector PSI real.
-4. Ejecutar el script de estrés y guardar su salida JSON.
-5. Confirmar la cronología del problema de Docker si se recuerdan más detalles.
-
-El informe completo, con tablas, análisis y nueve fichas en tres puntos, está en `INFORME_AUDITORIA.pdf` y `FICHAS.md`.
+## Toil, rollback y limitaciones
+Las horas de toil son estimaciones de planificación, no registros reales de seis meses. No se encontró un watcher de rollback automático, por lo que el escenario adversarial se especifica como plan de prueba, no como incidente ejecutado. El paquete original tampoco incluye `.git`, `mlflow.db`, `mlruns/`, el dataset ni los lotes históricos. Los commits disponibles pertenecen a un historial local creado durante esta auditoría, no al historial original del estudiante.

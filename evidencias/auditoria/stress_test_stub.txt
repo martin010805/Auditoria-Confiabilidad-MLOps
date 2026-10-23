@@ -1,0 +1,3 @@
+Command: python tests/stress_test_stub.py
+Result: 200 requests, 25 workers, 200 HTTP 200, 0 errors, 0.539 s, 370.81 requests/s, p95 99.15 ms.
+Scope: FastAPI route exercised in-process with TestClient and deterministic dummy model; not production model, network, or container performance.

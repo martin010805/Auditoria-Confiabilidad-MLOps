@@ -1,0 +1,12 @@
+{
+  "test_type": "FASTAPI_ROUTE_WITH_DUMMY_MODEL_NOT_PRODUCTION",
+  "requests": 200,
+  "workers": 25,
+  "successes_200": 200,
+  "errors": 0,
+  "elapsed_seconds": 0.539,
+  "requests_per_second": 370.81,
+  "p95_latency_ms": 99.15,
+  "model": "deterministic dummy model; MLflow artifact not loaded",
+  "limitations": "In-process TestClient, no network/container overhead; not production benchmark."
+}
