@@ -4,6 +4,7 @@ Esta política es una pieza nueva de auditoría; no sustituye un detector PSI.
 Recibe los valores PSI ya calculados por un monitor externo.
 """
 from dataclasses import dataclass
+from math import isfinite
 from typing import Mapping
 
 
@@ -24,7 +25,12 @@ def classify_psi(psi_by_feature: Mapping[str, float]) -> AlertDecision:
     """
     if not psi_by_feature:
         return AlertDecision("record", "registrar lote sin PSI", (), 0.0)
-    clean = {str(k): max(0.0, float(v)) for k, v in psi_by_feature.items()}
+    clean = {}
+    for key, raw_value in psi_by_feature.items():
+        value = float(raw_value)
+        if not isfinite(value) or value < 0:
+            raise ValueError(f"PSI inválido para {key!r}: {raw_value!r}")
+        clean[str(key)] = value
     max_psi = max(clean.values())
     moderate = tuple(sorted(k for k, v in clean.items() if v >= 0.10))
     severe = tuple(sorted(k for k, v in clean.items() if v >= 0.25))

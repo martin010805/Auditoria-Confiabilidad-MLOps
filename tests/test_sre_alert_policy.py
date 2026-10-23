@@ -25,3 +25,16 @@ def test_two_severe_variables_escalate():
 
 def test_empty_input_is_record():
     assert classify_psi({}).level == "record"
+
+
+def test_invalid_negative_psi_is_rejected():
+    import pytest
+    with pytest.raises(ValueError):
+        classify_psi({"V1": -0.1})
+
+
+def test_invalid_nan_psi_is_rejected():
+    import math
+    import pytest
+    with pytest.raises(ValueError):
+        classify_psi({"V1": math.nan})
