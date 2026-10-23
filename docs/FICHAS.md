@@ -20,7 +20,7 @@
 ## Capítulo 10 — Practical Alerting
 1. **Qué dice el capítulo.** Una alerta que despierta a alguien debe requerir acción inmediata. Señales informativas o de baja urgencia deben ser tickets o registros; demasiadas notificaciones individuales crean ruido.
 2. **Qué hice yo.** La API implementa `/metrics`, pero no se encontró un sistema de alertas PSI ni destinatarios en los archivos entregados (`serving/app.py`, líneas 167–208; `monitoring/logger.py`, líneas 17–30). La guía del proyecto anterior requería monitoreo de PSI, pero no se ve implementado en este ZIP.
-3. **Qué cambiaría hoy.** Añadí `monitoring/sre_alert_policy.py`, que agrega señales por lote y clasifica normal/moderado/severo; sus pruebas están en `tests/test_sre_alert_policy.py`. La política es una pieza nueva y probada, pero debe conectarse al detector PSI real cuando exista.
+3. **Qué cambiaría hoy.** Añadí `monitoring/sre_alert_policy.py`, que agrega señales por lote y clasifica normal/moderado/severo; sus pruebas están en `tests/test_sre_alert_policy.py`. La política es una pieza nueva y probada (commit local `e2ccd22`; siete pruebas pasan), pero debe conectarse al detector PSI real cuando exista.
 
 ## Capítulo 5 — Eliminating Toil
 1. **Qué dice el capítulo.** Toil es trabajo operativo manual, repetitivo, automatizable, sin valor duradero y que crece con el servicio. Se debe medir y reducir, pero conservar manuales las decisiones de alto riesgo que necesitan juicio humano.

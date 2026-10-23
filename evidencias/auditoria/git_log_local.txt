@@ -1,0 +1,4 @@
+e2ccd22 Validar PSI y agregar alertas por lote
+2d1cd5e Documentar límites del historial Git importado
+d4c8fe5 Registrar referencia de importación del snapshot
+eb0bc3b Importar snapshot del proyecto recibido y materiales de auditoria
