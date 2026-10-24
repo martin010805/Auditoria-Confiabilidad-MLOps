@@ -1,25 +1,17 @@
-﻿# Proyecto MLOps: Clasificación Binaria
+﻿# Auditoría de Confiabilidad — Proyecto MLOps
 
-## Descripción
-Proyecto de clasificación binaria con machine learning, MLflow, FastAPI, Docker y monitoreo de predicciones.
+Repositorio de la auditoría de confiabilidad del proyecto MLOps de clasificación binaria. Incluye fichas de lectura del Google SRE Book, informe de auditoría, código de monitorización, pruebas y evidencias disponibles.
 
-## Instalación
-Activar el entorno virtual con: `.\.venv\Scripts\Activate.ps1`
-Instalar dependencias con: `pip install -r requirements.txt`
+## Contenido
 
-## Entrenamiento
-Ejecutar el pipeline con: `python .\pipeline\run_pipeline.py`
+- `fichas.md`: fichas de lectura y análisis del proyecto.
+- `Martin_AuditoriaConfiabilidad.pdf`: informe de auditoría.
+- `monitoring/`: componentes de monitorización y política de alertas.
+- `pipeline/`: ejecución del flujo de entrenamiento.
+- `serving/`: API de predicción.
+- `tests/`: pruebas disponibles.
+- `training/`: código y resultados del entrenamiento.
+- `evidencias/`: resultados y evidencias recopiladas.
+- `docs/`: documentación complementaria.
 
-## API
-Iniciar localmente con: `python -m uvicorn serving.app:app --host 127.0.0.1 --port 8002`
-Documentación: http://127.0.0.1:8002/docs
-
-## Docker
-Construir imagen: `docker build -t proyecto-mlops-api .`
-Ejecutar contenedor con monitoreo compartido: `docker run --rm -p 8003:8000 -v "${PWD}\monitoring:/app/monitoring" proyecto-mlops-api`
-
-## Monitoreo
-Las predicciones se guardan en `monitoring/prediction_log.csv`.
-
-## Pruebas
-Ejecutar las pruebas automatizadas con: `python -m pytest -q`.
+**Nota:** las evidencias deben interpretarse según el alcance de cada prueba; los resultados simulados no equivalen a una validación en producción.
