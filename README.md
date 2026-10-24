@@ -1,4 +1,4 @@
-﻿# Auditoría de Confiabilidad — Proyecto MLOps
+﻿# Auditoría de Confiabilidad
 
 Repositorio de la auditoría de confiabilidad del proyecto MLOps de clasificación binaria. Incluye fichas de lectura del Google SRE Book, informe de auditoría, código de monitorización, pruebas y evidencias disponibles.
 
